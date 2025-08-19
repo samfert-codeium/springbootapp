@@ -40,10 +40,15 @@ public class DefaultJwtService implements JwtService {
   @Override
   public Optional<String> getSubFromToken(String token) {
     try {
-      Jws<Claims> claimsJws =
-          Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
+      Jws<Claims> claimsJws = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
       return Optional.ofNullable(claimsJws.getBody().getSubject());
-    } catch (Exception e) {
+    } catch (io.jsonwebtoken.security.SecurityException | io.jsonwebtoken.MalformedJwtException e) {
+      return Optional.empty();
+    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+      return Optional.empty();
+    } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+      return Optional.empty();
+    } catch (IllegalArgumentException e) {
       return Optional.empty();
     }
   }

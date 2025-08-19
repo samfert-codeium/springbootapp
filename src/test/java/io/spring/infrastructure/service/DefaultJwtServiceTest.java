@@ -14,7 +14,8 @@ public class DefaultJwtServiceTest {
   @BeforeEach
   public void setUp() {
     jwtService =
-        new DefaultJwtService("123123123123123123123123123123123123123123123123123123123123", 3600);
+        new DefaultJwtService(
+            "testSecretKey123456789012345678901234567890123456789012345678901234567890", 3600);
   }
 
   @Test

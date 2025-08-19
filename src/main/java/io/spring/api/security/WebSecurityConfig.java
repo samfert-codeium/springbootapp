@@ -28,13 +28,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
+  public RateLimitingFilter rateLimitingFilter() {
+    return new RateLimitingFilter();
+  }
+
+  @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-
     http.csrf()
         .disable()
         .cors()
@@ -49,9 +53,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(HttpMethod.OPTIONS)
         .permitAll()
         .antMatchers("/graphiql")
-        .permitAll()
+        .authenticated()
         .antMatchers("/graphql")
-        .permitAll()
+        .authenticated()
         .antMatchers(HttpMethod.GET, "/articles/feed")
         .authenticated()
         .antMatchers(HttpMethod.POST, "/users", "/users/login")
@@ -61,13 +65,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest()
         .authenticated();
 
+    http.addFilterBefore(rateLimitingFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
   }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(asList("*"));
+    configuration.setAllowedOrigins(
+        asList("http://localhost:3000", "http://localhost:4200", "http://127.0.0.1:3000"));
     configuration.setAllowedMethods(asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
     // setAllowCredentials(true) is important, otherwise:
     // The value of the 'Access-Control-Allow-Origin' header in the response must not be the
