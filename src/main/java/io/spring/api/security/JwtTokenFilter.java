@@ -2,13 +2,13 @@ package io.spring.api.security;
 
 import io.spring.core.service.JwtService;
 import io.spring.core.user.UserRepository;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,38 +25,53 @@ public class JwtTokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    getTokenString(request.getHeader(header))
-        .flatMap(token -> jwtService.getSubFromToken(token))
-        .ifPresent(
-            id -> {
-              if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                userRepository
-                    .findById(id)
-                    .ifPresent(
-                        user -> {
-                          UsernamePasswordAuthenticationToken authenticationToken =
-                              new UsernamePasswordAuthenticationToken(
-                                  user, null, Collections.emptyList());
-                          authenticationToken.setDetails(
-                              new WebAuthenticationDetailsSource().buildDetails(request));
-                          SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                        });
-              }
-            });
+    
+    try {
+      Optional<String> tokenOpt = getTokenString(request.getHeader(header));
+      if (tokenOpt.isPresent()) {
+        String token = tokenOpt.get();
+        Optional<String> userIdOpt = jwtService.getSubFromToken(token);
+        
+        if (userIdOpt.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
+          String userId = userIdOpt.get();
+          userRepository.findById(userId).ifPresent(user -> {
+            UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+            authenticationToken.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+          });
+        } else if (userIdOpt.isEmpty()) {
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+          response.getWriter().write("{\"error\":\"Invalid JWT token\"}");
+          response.setContentType("application/json");
+          return;
+        }
+      }
+    } catch (Exception e) {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.getWriter().write("{\"error\":\"JWT token processing failed\"}");
+      response.setContentType("application/json");
+      return;
+    }
 
     filterChain.doFilter(request, response);
   }
 
   private Optional<String> getTokenString(String header) {
-    if (header == null) {
+    if (header == null || header.trim().isEmpty()) {
       return Optional.empty();
-    } else {
-      String[] split = header.split(" ");
-      if (split.length < 2) {
-        return Optional.empty();
-      } else {
-        return Optional.ofNullable(split[1]);
-      }
     }
+    
+    if (!header.startsWith("Bearer ")) {
+      return Optional.empty();
+    }
+    
+    String token = header.substring(7).trim();
+    if (token.isEmpty()) {
+      return Optional.empty();
+    }
+    
+    return Optional.of(token);
   }
 }
