@@ -45,6 +45,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
+        .headers()
+        .frameOptions()
+        .deny()
+        .contentTypeOptions()
+        .and()
+        .httpStrictTransportSecurity(
+            hstsConfig -> hstsConfig.maxAgeInSeconds(31536000).includeSubDomains(true))
+        .addHeaderWriter(
+            (request, response) -> {
+              response.setHeader("Content-Security-Policy", "default-src 'self'");
+            })
+        .and()
         .authorizeRequests()
         .antMatchers(HttpMethod.OPTIONS)
         .permitAll()
@@ -67,12 +79,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(asList("*"));
+    configuration.setAllowedOrigins(
+        asList("http://localhost:3000", "http://localhost:4200", "http://127.0.0.1:3000"));
     configuration.setAllowedMethods(asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
     // setAllowCredentials(true) is important, otherwise:
     // The value of the 'Access-Control-Allow-Origin' header in the response must not be the
     // wildcard '*' when the request's credentials mode is 'include'.
-    configuration.setAllowCredentials(false);
+    configuration.setAllowCredentials(true);
     // setAllowedHeaders is important! Without it, OPTIONS preflight request
     // will fail with 403 Invalid CORS request
     configuration.setAllowedHeaders(asList("Authorization", "Cache-Control", "Content-Type"));

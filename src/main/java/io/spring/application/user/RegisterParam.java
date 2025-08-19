@@ -22,5 +22,6 @@ public class RegisterParam {
   private String username;
 
   @NotBlank(message = "can't be empty")
+  @PasswordComplexityConstraint
   private String password;
 }

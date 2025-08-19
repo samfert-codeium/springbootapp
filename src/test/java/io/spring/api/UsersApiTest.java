@@ -181,7 +181,7 @@ public class UsersApiTest {
             new HashMap<String, Object>() {
               {
                 put("email", email);
-                put("password", "johnnyjacob");
+                put("password", "JohnnyJacob123!");
                 put("username", username);
               }
             });
