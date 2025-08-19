@@ -63,11 +63,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       return Optional.empty();
     }
 
-    if (!header.startsWith("Bearer ")) {
+    if (!header.startsWith("Token ")) {
       return Optional.empty();
     }
 
-    String token = header.substring(7).trim();
+    String token = header.substring(6).trim();
     if (token.isEmpty()) {
       return Optional.empty();
     }
