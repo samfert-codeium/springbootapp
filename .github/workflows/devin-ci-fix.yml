@@ -16,7 +16,13 @@ jobs:
     steps:
     - name: Call Devin API
       run: |
+        cat > /tmp/devin_payload.json <<'EOF'
+{
+  "prompt": "A CI build failed in the `${{ github.event.repository.full_name }}` repository on the `${{ github.event.workflow_run.head_branch }}` branch. Your task is to fix the build.\n\n- Pull the latest from the `${{ github.event.repository.full_name }}` repository\n- Checkout the `${{ github.event.workflow_run.head_branch }}` branch\n- Run the build locally to reproduce the failure\n- Identify and fix the cause of the build failure\n- Push your changes to the `${{ github.event.workflow_run.head_branch }}` branch\n\nThe CI will automatically run again to verify your fix.",
+  "title": "Fix CI - ${{ github.event.workflow_run.head_branch }}"
+}
+EOF
         curl -X POST https://api.devin.ai/v1/sessions \
           -H "Authorization: Bearer ${{ secrets.DEVIN_API_KEY }}" \
           -H "Content-Type: application/json" \
-          -d '{"prompt":"A CI build failed in ${{ github.event.repository.html_url }} on branch ${{ github.event.workflow_run.head_branch }}. Clone the repo, checkout that branch, run the build, fix what failed, and push your changes.","title":"Fix CI - ${{ github.event.workflow_run.head_branch }}"}'
+          -d @/tmp/devin_payload.json
