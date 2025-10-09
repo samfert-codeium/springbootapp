@@ -2,7 +2,7 @@ name: Devin CI Fix
 
 on:
   workflow_run:
-    workflows: ["Spring Boot CI/CD"]
+    workflows: ["Java CI"]
     types: [completed]
 
 jobs:
