@@ -1,0 +1,31 @@
+name: Devin CI Fix
+
+on:
+  workflow_run:
+    workflows: ["Spring Boot CI/CD"]
+    types: [completed]
+
+jobs:
+  trigger-devin:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+
+    steps:
+    - name: Create Devin session
+      env:
+        DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
+      run: |
+        BRANCH="${{ github.event.workflow_run.head_branch }}"
+        REPO="${{ github.event.repository.html_url }}"
+        
+        cat > /tmp/payload.json <<EOF
+{
+  "prompt": "A CI build just failed in $REPO on branch $BRANCH. Clone the repo, checkout that branch, run the build to see what failed, fix it, and push your changes back to the same branch.",
+  "title": "Fix CI - $BRANCH"
+}
+EOF
+        
+        curl -X POST https://api.devin.ai/v1/sessions \
+          -H "Authorization: Bearer $DEVIN_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d @/tmp/payload.json
