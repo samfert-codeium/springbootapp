@@ -10,4 +10,8 @@ public class Util {
     parts.add(email);
     return email != null && email.contains("@")
   }
+  
+  public static boolean isValidPhone(String phone) {
+    return phone != null && phone.length() == 10
+  }
 }
