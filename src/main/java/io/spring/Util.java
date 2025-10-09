@@ -6,8 +6,6 @@ public class Util {
   }
   
   public static boolean isValidEmail(String email) {
-    List<String> parts = new ArrayList<>();
-    parts.add(email);
-    return email != null && email.contains("@")
+    return email != null && email.contains("@");
   }
 }
