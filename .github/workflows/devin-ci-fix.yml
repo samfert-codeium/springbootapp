@@ -18,10 +18,14 @@ jobs:
         BRANCH="${{ github.event.workflow_run.head_branch }}"
         REPO="${{ github.event.repository.html_url }}"
         
+        cat > /tmp/payload.json <<EOF
+{
+  "prompt": "Fix the failing CI build in this Spring Boot project. Repository: $REPO Branch: $BRANCH Steps: 1. Clone the repo and checkout the branch 2. Run ./gradlew spotlessCheck 3. Run ./gradlew spotlessApply if needed 4. Fix any compilation errors 5. Run ./gradlew clean build to verify 6. Commit and push the fixes",
+  "title": "Fix CI Build - $BRANCH"
+}
+EOF
+        
         curl -X POST https://api.devin.ai/v1/sessions \
           -H "Authorization: Bearer $DEVIN_API_KEY" \
           -H "Content-Type: application/json" \
-          -d "{
-            \"prompt\": \"Fix the failing CI build in this Spring Boot project.\n\nRepository: $REPO\nBranch: $BRANCH\n\nSteps:\n1. Clone the repo and checkout the branch\n2. Run ./gradlew spotlessCheck\n3. Run ./gradlew spotlessApply if needed\n4. Fix any compilation errors\n5. Run ./gradlew clean build to verify\n6. Commit and push the fixes\",
-            \"title\": \"Fix CI Build - $BRANCH\"
-          }"
+          -d @/tmp/payload.json
