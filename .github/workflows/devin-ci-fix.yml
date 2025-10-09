@@ -19,7 +19,8 @@ jobs:
         cat > /tmp/devin_payload.json <<'EOF'
 {
   "prompt": "A CI build failed in the `${{ github.event.repository.full_name }}` repository on the `${{ github.event.workflow_run.head_branch }}` branch. Your task is to fix the build.\n\n- Pull the latest from the `${{ github.event.repository.full_name }}` repository\n- Checkout the `${{ github.event.workflow_run.head_branch }}` branch\n- Run the build locally to reproduce the failure\n- Identify and fix the cause of the build failure\n- Push your changes to the `${{ github.event.workflow_run.head_branch }}` branch\n\nThe CI will automatically run again to verify your fix.",
-  "title": "Fix CI - ${{ github.event.workflow_run.head_branch }}"
+  "title": "Fix CI - ${{ github.event.workflow_run.head_branch }}",
+  "idempotent": true
 }
 EOF
         curl -X POST https://api.devin.ai/v1/sessions \
