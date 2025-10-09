@@ -5,10 +5,8 @@ public class Util {
     return value == null || value.isEmpty();
   }
   
-  public static String formatUserProfile(String name, int age) {
+  public static boolean isValidEmail(String email) {
     List<String> parts = new ArrayList<>();
-    parts.add(name);
-    parts.add(String.valueOf(age))
-    return String.join(", ", parts);
+    return email != null && email.contains("@")
   }
 }
