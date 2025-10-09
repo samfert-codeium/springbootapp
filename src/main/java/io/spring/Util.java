@@ -4,11 +4,11 @@ public class Util {
   public static boolean isEmpty(String value) {
     return value == null || value.isEmpty();
   }
-  
+
   public static boolean isValidEmail(String email) {
     return email != null && email.contains("@");
   }
-  
+
   public static boolean isValidPhone(String phone) {
     return phone != null && phone.length() == 10;
   }
