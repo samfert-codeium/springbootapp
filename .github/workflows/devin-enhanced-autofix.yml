@@ -1,0 +1,289 @@
+name: Devin Enhanced Auto-Fix
+
+on:
+  workflow_run:
+    workflows: ["Spring Boot CI/CD"]
+    types: [completed]
+    branches: ['**']
+
+jobs:
+  devin-autofix:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: write
+      issues: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.workflow_run.head_branch }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js for API calls
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install jq for JSON processing
+      run: sudo apt-get update && sudo apt-get install -y jq
+
+    - name: Get detailed build failure information
+      id: build-info
+      run: |
+        echo "branch=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_OUTPUT
+        echo "commit=${{ github.event.workflow_run.head_sha }}" >> $GITHUB_OUTPUT
+        echo "run_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+        echo "repo_url=${{ github.event.repository.html_url }}" >> $GITHUB_OUTPUT
+        echo "repo_full_name=${{ github.event.repository.full_name }}" >> $GITHUB_OUTPUT
+        
+        # Get the workflow run details to extract job information
+        WORKFLOW_JOBS=$(curl -s \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "${{ github.api_url }}/repos/${{ github.event.repository.full_name }}/actions/runs/${{ github.event.workflow_run.id }}/jobs")
+        
+        # Extract the failed job logs URL
+        FAILED_JOB_ID=$(echo "$WORKFLOW_JOBS" | jq -r '.jobs[] | select(.conclusion == "failure") | .id' | head -1)
+        
+        if [ -n "$FAILED_JOB_ID" ]; then
+          echo "failed_job_id=$FAILED_JOB_ID" >> $GITHUB_OUTPUT
+          
+          # Get the logs for the failed job
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "${{ github.api_url }}/repos/${{ github.event.repository.full_name }}/actions/jobs/$FAILED_JOB_ID/logs" \
+            > build_failure_logs.txt
+          
+          # Extract relevant error information (last 100 lines to avoid too much data)
+          tail -100 build_failure_logs.txt > build_errors.txt
+          
+          echo "Build failure logs captured"
+        else
+          echo "Could not find failed job ID"
+          echo "No specific build logs available" > build_errors.txt
+        fi
+
+    - name: Create comprehensive Devin session
+      id: devin-session
+      env:
+        DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
+      run: |
+        # Read the build error logs
+        BUILD_ERRORS=$(cat build_errors.txt | head -50 | sed 's/"/\\"/g' | tr '\n' ' ')
+        
+        # Create a comprehensive prompt for Devin
+        PROMPT="🔧 **URGENT: Fix Spring Boot CI/CD Build Failure**
+
+        **Repository Details:**
+        - Repository: ${{ steps.build-info.outputs.repo_url }}
+        - Branch: \`${{ steps.build-info.outputs.branch }}\`
+        - Failed Commit: \`${{ steps.build-info.outputs.commit }}\`
+        - Build Run: ${{ steps.build-info.outputs.repo_url }}/actions/runs/${{ steps.build-info.outputs.run_id }}
+
+        **Build Error Context:**
+        \`\`\`
+        $BUILD_ERRORS
+        \`\`\`
+
+        **Your Task:**
+        1. **Clone & Setup:**
+           - git clone ${{ steps.build-info.outputs.repo_url }}.git
+           - cd \$(basename ${{ steps.build-info.outputs.repo_url }} .git)
+           - git checkout ${{ steps.build-info.outputs.branch }}
+
+        2. **Diagnose Issues:**
+           - Run: \`./gradlew spotlessCheck\` (check formatting)
+           - Run: \`./gradlew compileJava\` (check compilation)
+           - Run: \`./gradlew test\` (check tests)
+
+        3. **Fix Common Issues:**
+           - Missing imports (java.util.List, java.util.ArrayList, etc.)
+           - Syntax errors (missing semicolons, brackets)
+           - Type mismatches (wrong return types)
+           - Code formatting violations (use \`./gradlew spotlessApply\`)
+
+        4. **Verify & Deploy:**
+           - Run: \`./gradlew clean build\` (full build test)
+           - Commit: \`git add . && git commit -m \"fix: resolve CI build failures\"\`
+           - Push: \`git push origin ${{ steps.build-info.outputs.branch }}\`
+
+        **Success Criteria:**
+        - All Gradle tasks pass without errors
+        - Code follows Google Java Format standards
+        - New CI build triggered and passes
+        - Minimal, targeted fixes that preserve functionality
+
+        **Priority:** HIGH - This is blocking development workflow!"
+
+        # Call Devin API
+        RESPONSE=$(curl -s --request POST \
+          --url https://api.devin.ai/v1/sessions \
+          --header "Authorization: Bearer $DEVIN_API_KEY" \
+          --header "Content-Type: application/json" \
+          --data "{
+            \"prompt\": \"$PROMPT\",
+            \"idempotent\": true,
+            \"title\": \"🚨 URGENT: Fix CI Build - ${{ steps.build-info.outputs.branch }}\",
+            \"tags\": [\"urgent\", \"auto-fix\", \"ci-failure\", \"spring-boot\", \"gradle\"],
+            \"unlisted\": false
+          }")
+        
+        echo "API Response: $RESPONSE"
+        
+        # Parse response
+        SESSION_ID=$(echo "$RESPONSE" | jq -r '.session_id // empty')
+        SESSION_URL=$(echo "$RESPONSE" | jq -r '.url // empty')
+        IS_NEW=$(echo "$RESPONSE" | jq -r '.is_new_session // true')
+        
+        if [ -n "$SESSION_ID" ] && [ "$SESSION_ID" != "null" ]; then
+          echo "session_id=$SESSION_ID" >> $GITHUB_OUTPUT
+          echo "session_url=$SESSION_URL" >> $GITHUB_OUTPUT
+          echo "is_new_session=$IS_NEW" >> $GITHUB_OUTPUT
+          
+          echo "✅ Devin session created successfully!"
+          echo "Session ID: $SESSION_ID"
+          echo "Session URL: $SESSION_URL"
+          echo "New Session: $IS_NEW"
+        else
+          echo "❌ Failed to create Devin session"
+          echo "Full Response: $RESPONSE"
+          exit 1
+        fi
+
+    - name: Create detailed GitHub issue
+      if: success() && steps.devin-session.outputs.session_id
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const sessionUrl = '${{ steps.devin-session.outputs.session_url }}';
+          const sessionId = '${{ steps.devin-session.outputs.session_id }}';
+          const branch = '${{ steps.build-info.outputs.branch }}';
+          const commit = '${{ steps.build-info.outputs.commit }}';
+          const runId = '${{ steps.build-info.outputs.run_id }}';
+          const isNew = '${{ steps.devin-session.outputs.is_new_session }}';
+          
+          // Read build errors for the issue
+          let buildErrors = '';
+          try {
+            buildErrors = fs.readFileSync('build_errors.txt', 'utf8').slice(0, 2000);
+          } catch (e) {
+            buildErrors = 'Build error details not available';
+          }
+          
+          const issueBody = `## 🚨 Devin Auto-Fix: URGENT Build Failure
+          
+          **Status**: ${isNew === 'true' ? '🆕 New session created' : '🔄 Using existing session'}
+          
+          ### 📊 Build Information
+          | Field | Value |
+          |-------|-------|
+          | **Branch** | \`${branch}\` |
+          | **Commit** | [\`${commit.substring(0, 8)}\`](${context.payload.repository.html_url}/commit/${commit}) |
+          | **Failed Build** | [View Run #${runId}](${context.payload.repository.html_url}/actions/runs/${runId}) |
+          | **Timestamp** | ${new Date().toISOString()} |
+          
+          ### 🤖 Devin Session Details
+          - **Session ID**: \`${sessionId}\`
+          - **Session URL**: [🔗 View Devin Session](${sessionUrl})
+          - **Priority**: HIGH (Blocking development)
+          
+          ### 🔍 Build Error Preview
+          \`\`\`
+          ${buildErrors}
+          \`\`\`
+          
+          ### 🎯 Devin's Action Plan
+          1. ✅ Clone repository and checkout \`${branch}\`
+          2. ✅ Analyze build failures (formatting, compilation, tests)
+          3. ✅ Apply targeted fixes (imports, syntax, formatting)
+          4. ✅ Verify with full build: \`./gradlew clean build\`
+          5. ✅ Commit and push corrected code
+          6. ✅ Trigger new CI build to verify success
+          
+          ### 📈 Expected Timeline
+          - **Analysis**: 2-3 minutes
+          - **Fixes**: 5-10 minutes  
+          - **Verification**: 2-3 minutes
+          - **Total**: ~10-15 minutes
+          
+          ---
+          
+          **This issue will be automatically updated with progress and closed when the build passes.**
+          
+          *🤖 Powered by Devin AI Auto-Fix Pipeline v2.0*`;
+          
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `🚨 URGENT: Auto-Fix Build Failure on ${branch}`,
+            body: issueBody,
+            labels: ['urgent', 'auto-fix', 'devin', 'ci-failure', 'spring-boot'],
+            assignees: []
+          });
+          
+          console.log(`Created issue #${issue.data.number}`);
+          return issue.data.number;
+
+    - name: Add status comment to commit
+      if: success() && steps.devin-session.outputs.session_id
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const sessionUrl = '${{ steps.devin-session.outputs.session_url }}';
+          const sessionId = '${{ steps.devin-session.outputs.session_id }}';
+          const isNew = '${{ steps.devin-session.outputs.is_new_session }}';
+          
+          const statusEmoji = isNew === 'true' ? '🆕' : '🔄';
+          const statusText = isNew === 'true' ? 'New session created' : 'Using existing session';
+          
+          await github.rest.repos.createCommitComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: '${{ steps.build-info.outputs.commit }}',
+            body: `🤖 **Devin Auto-Fix Activated** ${statusEmoji}
+            
+            **Status**: ${statusText}
+            **Session**: [\`${sessionId}\`](${sessionUrl})
+            **Priority**: HIGH (Build failure detected)
+            
+            Devin is analyzing the build failure and will push fixes shortly.
+            
+            📊 **Progress Tracking**: [View Issue](${context.payload.repository.html_url}/issues?q=is%3Aissue+is%3Aopen+label%3Aauto-fix)`
+          });
+
+    - name: Notify on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `❌ Devin Auto-Fix Failed - ${{ steps.build-info.outputs.branch }}`,
+            body: `## ❌ Devin Auto-Fix System Failure
+            
+            The Devin auto-fix system encountered an error while trying to fix the build failure.
+            
+            **Branch**: \`${{ steps.build-info.outputs.branch }}\`
+            **Commit**: \`${{ steps.build-info.outputs.commit }}\`
+            **Original Build**: [View Run](${context.payload.repository.html_url}/actions/runs/${{ steps.build-info.outputs.run_id }})
+            
+            **Possible Issues**:
+            - Devin API key not configured or invalid
+            - Network connectivity issues
+            - API rate limits exceeded
+            - Malformed API request
+            
+            **Manual Action Required**: Please check the build failure manually and fix the issues.
+            
+            ---
+            *Check the [Actions logs](${context.payload.repository.html_url}/actions) for more details.*`,
+            labels: ['bug', 'auto-fix-failure', 'manual-intervention-required']
+          });
