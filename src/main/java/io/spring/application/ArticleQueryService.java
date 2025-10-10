@@ -122,6 +122,18 @@ public class ArticleQueryService {
     }
   }
 
+  public ArticleDataList searchArticlesByQuery(String query, Page page, User currentUser) {
+    List<String> articleIds = articleReadService.searchArticlesByQuery(query, page);
+    int articleCount = articleReadService.countSearchResults(query);
+    if (articleIds.size() == 0) {
+      return new ArticleDataList(new ArrayList<>(), articleCount);
+    } else {
+      List<ArticleData> articles = articleReadService.findArticles(articleIds);
+      fillExtraInfo(articles, currentUser);
+      return new ArticleDataList(articles, articleCount);
+    }
+  }
+
   private void fillExtraInfo(List<ArticleData> articles, User currentUser) {
     setFavoriteCount(articles);
     if (currentUser != null) {

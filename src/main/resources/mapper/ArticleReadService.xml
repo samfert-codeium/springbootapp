@@ -157,4 +157,23 @@
     <resultMap id="articleId" type="string">
         <id javaType="string" column="articleId"/>
     </resultMap>
+
+    <select id="searchArticlesByQuery" resultMap="articleId">
+        <include refid="selectArticleIds" />
+        <where>
+            (A.title LIKE CONCAT('%', #{query}, '%') OR A.body LIKE CONCAT('%', #{query}, '%'))
+        </where>
+        order by A.created_at desc
+        limit #{page.offset}, #{page.limit}
+    </select>
+
+    <select id="countSearchResults" resultType="java.lang.Integer">
+        select
+        count(DISTINCT A.id)
+        from
+        articles A
+        <where>
+            (A.title LIKE CONCAT('%', #{query}, '%') OR A.body LIKE CONCAT('%', #{query}, '%'))
+        </where>
+    </select>
 </mapper>
