@@ -15,15 +15,27 @@ jobs:
 
     steps:
     - name: Call Devin API
+      env:
+        REPO_NAME: ${{ github.event.repository.full_name }}
+        BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
+        DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
       run: |
-        cat > /tmp/devin_payload.json <<'EOF'
-{
-  "prompt": "A CI build failed in the `${{ github.event.repository.full_name }}` repository on the `${{ github.event.workflow_run.head_branch }}` branch. Your task is to fix the build.\n\n- Pull the latest from the `${{ github.event.repository.full_name }}` repository\n- Checkout the `${{ github.event.workflow_run.head_branch }}` branch\n- Run the build locally to reproduce the failure\n- Identify and fix the cause of the build failure\n- Push your changes to the `${{ github.event.workflow_run.head_branch }}` branch\n\nThe CI will automatically run again to verify your fix.",
-  "title": "Fix CI - ${{ github.event.workflow_run.head_branch }}",
-  "idempotent": true
-}
-EOF
+        PROMPT="A CI build failed in the ${REPO_NAME} repository on the ${BRANCH_NAME} branch. Your task is to fix the build.
+
+        - Pull the latest from the ${REPO_NAME} repository
+        - Checkout the ${BRANCH_NAME} branch
+        - Run the build locally to reproduce the failure
+        - Identify and fix the cause of the build failure
+        - Push your changes to the ${BRANCH_NAME} branch
+
+        The CI will automatically run again to verify your fix."
+        
+        PAYLOAD=$(jq -n \
+          --arg prompt "$PROMPT" \
+          --arg title "Fix CI - ${BRANCH_NAME}" \
+          '{prompt: $prompt, title: $title, idempotent: true}')
+        
         curl -X POST https://api.devin.ai/v1/sessions \
-          -H "Authorization: Bearer ${{ secrets.DEVIN_API_KEY }}" \
+          -H "Authorization: Bearer ${DEVIN_API_KEY}" \
           -H "Content-Type: application/json" \
-          -d @/tmp/devin_payload.json
+          -d "$PAYLOAD"
