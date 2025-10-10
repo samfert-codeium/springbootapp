@@ -65,8 +65,8 @@ public class ArticlesApi {
       @RequestParam(value = "limit", defaultValue = "20") int limit,
       @AuthenticationPrincipal User user) {
     // Search articles by title or body content
-      return ResponseEntity.ok(
-        articleQueryService.findRecentArticles(
-          null, null, null, new Page(offset, limit), user));
+    return ResponseEntity.ok(
+        articleQueryService.searchArticlesByQuery(
+            query, new Page(offset, limit), user));
   }
 }
