@@ -7,6 +7,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for the DefaultJwtService.
+ *
+ * <p>Tests JWT token generation and parsing, including handling of
+ * invalid and expired tokens.
+ */
 public class DefaultJwtServiceTest {
 
   private JwtService jwtService;

@@ -7,8 +7,18 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * MyBatis implementation of the CommentRepository.
+ *
+ * <p>This repository provides persistence operations for comments
+ * using MyBatis as the ORM framework.
+ *
+ * @see CommentRepository
+ * @see CommentMapper
+ */
 @Component
 public class MyBatisCommentRepository implements CommentRepository {
+  /** MyBatis mapper for comment operations. */
   private CommentMapper commentMapper;
 
   @Autowired

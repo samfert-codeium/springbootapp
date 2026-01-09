@@ -18,10 +18,25 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+/**
+ * GraphQL data fetcher for current user (me) queries.
+ *
+ * <p>This component handles GraphQL queries related to the authenticated user:
+ * <ul>
+ *   <li>me - Get the currently authenticated user's data</li>
+ *   <li>Resolving user payloads from mutations</li>
+ * </ul>
+ *
+ * @see UserQueryService
+ * @see UserMutation
+ */
 @DgsComponent
 @AllArgsConstructor
 public class MeDatafetcher {
+  /** Service for querying user data. */
   private UserQueryService userQueryService;
+
+  /** Service for JWT token generation. */
   private JwtService jwtService;
 
   @DgsData(parentType = DgsConstants.QUERY_TYPE, field = QUERY.Me)

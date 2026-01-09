@@ -29,6 +29,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the ArticlesApi REST controller.
+ *
+ * <p>Tests article creation with validation, including duplicate title detection
+ * and required field validation.
+ */
 @WebMvcTest({ArticlesApi.class})
 @Import({WebSecurityConfig.class, JacksonCustomizations.class})
 public class ArticlesApiTest extends TestWithCurrentUser {

@@ -24,12 +24,32 @@ import io.spring.graphql.types.UpdateArticleInput;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
 
+/**
+ * GraphQL mutation handler for article operations.
+ *
+ * <p>This component handles GraphQL mutations related to articles:
+ * <ul>
+ *   <li>createArticle - Create a new article</li>
+ *   <li>updateArticle - Update an existing article</li>
+ *   <li>deleteArticle - Delete an article</li>
+ *   <li>favoriteArticle - Add article to favorites</li>
+ *   <li>unfavoriteArticle - Remove article from favorites</li>
+ * </ul>
+ *
+ * @see ArticleDatafetcher
+ * @see ArticleCommandService
+ */
 @DgsComponent
 @AllArgsConstructor
 public class ArticleMutation {
 
+  /** Service for article write operations. */
   private ArticleCommandService articleCommandService;
+
+  /** Repository for article favorite operations. */
   private ArticleFavoriteRepository articleFavoriteRepository;
+
+  /** Repository for article persistence. */
   private ArticleRepository articleRepository;
 
   @DgsMutation(field = MUTATION.CreateArticle)

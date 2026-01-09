@@ -21,9 +21,22 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.springframework.stereotype.Component;
 
+/**
+ * Custom exception handler for GraphQL data fetchers.
+ *
+ * <p>This handler converts various exceptions into appropriate GraphQL errors:
+ * <ul>
+ *   <li>{@link InvalidAuthenticationException} - Returns UNAUTHENTICATED error</li>
+ *   <li>{@link ConstraintViolationException} - Returns BAD_REQUEST with field errors</li>
+ *   <li>Other exceptions - Delegates to default handler</li>
+ * </ul>
+ *
+ * @see DataFetcherExceptionHandler
+ */
 @Component
 public class GraphQLCustomizeExceptionHandler implements DataFetcherExceptionHandler {
 
+  /** Default handler for unhandled exceptions. */
   private final DefaultDataFetcherExceptionHandler defaultHandler =
       new DefaultDataFetcherExceptionHandler();
 

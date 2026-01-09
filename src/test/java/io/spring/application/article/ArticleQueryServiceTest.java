@@ -28,6 +28,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the ArticleQueryService.
+ *
+ * <p>Tests article query operations including fetching articles by ID,
+ * listing articles with various filters (tag, author, favorited),
+ * cursor-based pagination, and user feed functionality.
+ */
 @Import({
   ArticleQueryService.class,
   MyBatisUserRepository.class,

@@ -21,6 +21,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * Global exception handler for REST API controllers.
+ *
+ * <p>This class provides centralized exception handling for all REST controllers,
+ * converting various exceptions into appropriate HTTP responses with structured
+ * error messages.
+ *
+ * @see ErrorResource
+ * @see FieldErrorResource
+ */
 @RestControllerAdvice
 public class CustomizeExceptionHandler extends ResponseEntityExceptionHandler {
 

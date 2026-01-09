@@ -8,8 +8,19 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * MyBatis implementation of the ArticleRepository.
+ *
+ * <p>This repository provides persistence operations for articles and tags
+ * using MyBatis as the ORM framework. It handles article creation, updates,
+ * and tag relationship management within transactions.
+ *
+ * @see ArticleRepository
+ * @see ArticleMapper
+ */
 @Repository
 public class MyBatisArticleRepository implements ArticleRepository {
+  /** MyBatis mapper for article operations. */
   private ArticleMapper articleMapper;
 
   public MyBatisArticleRepository(ArticleMapper articleMapper) {

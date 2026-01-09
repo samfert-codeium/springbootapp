@@ -16,6 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the MyBatisArticleRepository.
+ *
+ * <p>Tests article CRUD operations including creating, reading, updating,
+ * and deleting articles with their associated tags.
+ */
 @Import({MyBatisArticleRepository.class, MyBatisUserRepository.class})
 public class MyBatisArticleRepositoryTest extends DbTestBase {
   @Autowired private ArticleRepository articleRepository;

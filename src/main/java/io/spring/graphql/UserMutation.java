@@ -25,12 +25,30 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * GraphQL mutation handler for user operations.
+ *
+ * <p>This component handles GraphQL mutations related to users:
+ * <ul>
+ *   <li>createUser - Register a new user</li>
+ *   <li>login - Authenticate a user</li>
+ *   <li>updateUser - Update the current user's profile</li>
+ * </ul>
+ *
+ * @see MeDatafetcher
+ * @see UserService
+ */
 @DgsComponent
 @AllArgsConstructor
 public class UserMutation {
 
+  /** Repository for user persistence. */
   private UserRepository userRepository;
+
+  /** Encoder for password verification. */
   private PasswordEncoder encryptService;
+
+  /** Service for user write operations. */
   private UserService userService;
 
   @DgsData(parentType = MUTATION.TYPE_NAME, field = MUTATION.CreateUser)

@@ -12,9 +12,19 @@ import org.apache.ibatis.type.MappedTypes;
 import org.apache.ibatis.type.TypeHandler;
 import org.joda.time.DateTime;
 
+/**
+ * MyBatis type handler for Joda-Time DateTime objects.
+ *
+ * <p>This handler converts between Joda-Time {@link DateTime} objects and
+ * SQL {@link Timestamp} values, ensuring all timestamps are stored and
+ * retrieved in UTC timezone.
+ *
+ * @see TypeHandler
+ */
 @MappedTypes(DateTime.class)
 public class DateTimeHandler implements TypeHandler<DateTime> {
 
+  /** Calendar instance configured for UTC timezone. */
   private static final Calendar UTC_CALENDAR = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
   @Override

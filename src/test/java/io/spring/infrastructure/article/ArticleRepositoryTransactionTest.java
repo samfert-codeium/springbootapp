@@ -13,6 +13,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+/**
+ * Integration tests for article repository transaction behavior.
+ *
+ * <p>Tests that database transactions are properly rolled back when
+ * duplicate articles are saved, ensuring data consistency.
+ */
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

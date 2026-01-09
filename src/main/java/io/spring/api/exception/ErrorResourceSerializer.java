@@ -10,6 +10,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Custom JSON serializer for {@link ErrorResource}.
+ *
+ * <p>This serializer formats error responses according to the RealWorld API
+ * specification, grouping error messages by field name.
+ *
+ * <p>Output format:
+ * <pre>
+ * {
+ *   "errors": {
+ *     "fieldName": ["error message 1", "error message 2"]
+ *   }
+ * }
+ * </pre>
+ *
+ * @see ErrorResource
+ */
 public class ErrorResourceSerializer extends JsonSerializer<ErrorResource> {
   @Override
   public void serialize(ErrorResource value, JsonGenerator gen, SerializerProvider serializers)

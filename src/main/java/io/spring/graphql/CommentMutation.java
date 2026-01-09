@@ -20,12 +20,29 @@ import io.spring.graphql.types.CommentPayload;
 import io.spring.graphql.types.DeletionStatus;
 import lombok.AllArgsConstructor;
 
+/**
+ * GraphQL mutation handler for comment operations.
+ *
+ * <p>This component handles GraphQL mutations related to comments:
+ * <ul>
+ *   <li>addComment - Add a comment to an article</li>
+ *   <li>deleteComment - Delete a comment from an article</li>
+ * </ul>
+ *
+ * @see CommentDatafetcher
+ * @see CommentRepository
+ */
 @DgsComponent
 @AllArgsConstructor
 public class CommentMutation {
 
+  /** Repository for article persistence. */
   private ArticleRepository articleRepository;
+
+  /** Repository for comment persistence. */
   private CommentRepository commentRepository;
+
+  /** Service for querying comment data. */
   private CommentQueryService commentQueryService;
 
   @DgsData(parentType = MUTATION.TYPE_NAME, field = MUTATION.AddComment)

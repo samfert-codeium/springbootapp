@@ -10,6 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the MyBatisCommentRepository.
+ *
+ * <p>Tests comment persistence operations including creating and fetching comments.
+ */
 @Import({MyBatisCommentRepository.class})
 public class MyBatisCommentRepositoryTest extends DbTestBase {
   @Autowired private CommentRepository commentRepository;

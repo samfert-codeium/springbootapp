@@ -22,6 +22,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the ProfileApi REST controller.
+ *
+ * <p>Tests profile viewing and follow/unfollow operations.
+ */
 @WebMvcTest(ProfileApi.class)
 @Import({WebSecurityConfig.class, JacksonCustomizations.class})
 public class ProfileApiTest extends TestWithCurrentUser {

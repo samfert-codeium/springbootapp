@@ -21,10 +21,24 @@ import io.spring.graphql.types.ProfilePayload;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 
+/**
+ * GraphQL data fetcher for user profile queries.
+ *
+ * <p>This component handles GraphQL queries related to user profiles:
+ * <ul>
+ *   <li>profile - Get a user's profile by username</li>
+ *   <li>Resolving author profiles for articles</li>
+ *   <li>Resolving author profiles for comments</li>
+ * </ul>
+ *
+ * @see ProfileQueryService
+ * @see RelationMutation
+ */
 @DgsComponent
 @AllArgsConstructor
 public class ProfileDatafetcher {
 
+  /** Service for querying profile data. */
   private ProfileQueryService profileQueryService;
 
   @DgsData(parentType = USER.TYPE_NAME, field = USER.Profile)

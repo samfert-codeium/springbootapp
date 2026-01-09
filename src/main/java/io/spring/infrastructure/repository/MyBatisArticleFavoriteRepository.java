@@ -7,8 +7,18 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+/**
+ * MyBatis implementation of the ArticleFavoriteRepository.
+ *
+ * <p>This repository provides persistence operations for article favorites
+ * using MyBatis as the ORM framework.
+ *
+ * @see ArticleFavoriteRepository
+ * @see ArticleFavoriteMapper
+ */
 @Repository
 public class MyBatisArticleFavoriteRepository implements ArticleFavoriteRepository {
+  /** MyBatis mapper for article favorite operations. */
   private ArticleFavoriteMapper mapper;
 
   @Autowired

@@ -8,7 +8,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.joda.time.DateTime;
 
+/**
+ * Helper class for creating test fixtures.
+ *
+ * <p>Provides utility methods for generating test data objects
+ * used across multiple test classes.
+ */
 public class TestHelper {
+  /**
+   * Creates an ArticleData fixture with the given seed and user.
+   *
+   * @param seed a unique seed for generating test data
+   * @param user the user to associate as the article author
+   * @return an ArticleData instance with generated test values
+   */
   public static ArticleData articleDataFixture(String seed, User user) {
     DateTime now = new DateTime();
     return new ArticleData(
@@ -25,6 +38,13 @@ public class TestHelper {
         new ProfileData(user.getId(), user.getUsername(), user.getBio(), user.getImage(), false));
   }
 
+  /**
+   * Creates an ArticleData from an existing Article and User.
+   *
+   * @param article the article to convert
+   * @param user the user to associate as the article author
+   * @return an ArticleData instance based on the article and user
+   */
   public static ArticleData getArticleDataFromArticleAndUser(Article article, User user) {
     return new ArticleData(
         article.getId(),
