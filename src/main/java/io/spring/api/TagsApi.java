@@ -8,12 +8,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST API controller for tag operations.
+ *
+ * <p>This controller handles retrieving all available tags.
+ *
+ * <p>Endpoints:
+ * <ul>
+ *   <li>GET /tags - Get all tags</li>
+ * </ul>
+ *
+ * @see io.spring.core.article.Tag
+ */
 @RestController
 @RequestMapping(path = "tags")
 @AllArgsConstructor
 public class TagsApi {
+  /** Service for querying tag data. */
   private TagsQueryService tagsQueryService;
 
+  /**
+   * Retrieves all available tags.
+   *
+   * @return a list of all tag names
+   */
   @GetMapping
   public ResponseEntity getTags() {
     return ResponseEntity.ok(

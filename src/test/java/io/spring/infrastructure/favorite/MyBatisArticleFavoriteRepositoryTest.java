@@ -9,6 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the MyBatisArticleFavoriteRepository.
+ *
+ * <p>Tests article favorite operations including saving and removing favorites.
+ */
 @Import({MyBatisArticleFavoriteRepository.class})
 public class MyBatisArticleFavoriteRepositoryTest extends DbTestBase {
   @Autowired private ArticleFavoriteRepository articleFavoriteRepository;

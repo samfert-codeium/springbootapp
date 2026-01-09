@@ -22,6 +22,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the CommentQueryService.
+ *
+ * <p>Tests comment query operations including fetching comments by ID
+ * and retrieving all comments for an article.
+ */
 @Import({
   MyBatisCommentRepository.class,
   MyBatisUserRepository.class,

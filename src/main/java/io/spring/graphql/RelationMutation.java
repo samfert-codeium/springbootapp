@@ -15,11 +15,26 @@ import io.spring.graphql.types.Profile;
 import io.spring.graphql.types.ProfilePayload;
 import lombok.AllArgsConstructor;
 
+/**
+ * GraphQL mutation handler for user follow/unfollow operations.
+ *
+ * <p>This component handles GraphQL mutations related to user relationships:
+ * <ul>
+ *   <li>followUser - Follow another user</li>
+ *   <li>unfollowUser - Unfollow a user</li>
+ * </ul>
+ *
+ * @see ProfileDatafetcher
+ * @see FollowRelation
+ */
 @DgsComponent
 @AllArgsConstructor
 public class RelationMutation {
 
+  /** Repository for user persistence and follow relationships. */
   private UserRepository userRepository;
+
+  /** Service for querying profile data. */
   private ProfileQueryService profileQueryService;
 
   @DgsData(parentType = MUTATION.TYPE_NAME, field = MUTATION.FollowUser)

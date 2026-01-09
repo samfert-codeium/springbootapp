@@ -12,6 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Integration tests for the MyBatisUserRepository.
+ *
+ * <p>Tests user CRUD operations and follow relationship management,
+ * including saving, updating, and fetching users, as well as
+ * creating and removing follow relationships.
+ */
 @Import(MyBatisUserRepository.class)
 public class MyBatisUserRepositoryTest extends DbTestBase {
   @Autowired private UserRepository userRepository;

@@ -8,74 +8,285 @@ This codebase was created to demonstrate a fully fledged full-stack application 
 
 For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
-# *NEW* GraphQL Support  
+## Features
 
-Following some DDD principles. REST or GraphQL is just a kind of adapter. And the domain layer will be consistent all the time. So this repository implement GraphQL and REST at the same time.
+This application provides a complete backend implementation for a Medium-like blogging platform with the following features:
 
-The GraphQL schema is https://github.com/gothinkster/spring-boot-realworld-example-app/blob/master/src/main/resources/schema/schema.graphqls and the visualization looks like below.
+- User registration and authentication with JWT tokens
+- User profiles with follow/unfollow functionality
+- Article CRUD operations with slug-based URLs
+- Article tagging system
+- Article favorites
+- Comments on articles
+- Feed of articles from followed users
+- Both REST API and GraphQL endpoints
+
+## GraphQL Support  
+
+Following some DDD principles, REST or GraphQL is just a kind of adapter. The domain layer remains consistent regardless of the API type. This repository implements both GraphQL and REST simultaneously.
+
+The GraphQL schema is located at `src/main/resources/schema/schema.graphqls` and the visualization looks like below.
 
 ![](graphql-schema.png)
 
-And this implementation is using [dgs-framework](https://github.com/Netflix/dgs-framework) which is a quite new java graphql server framework.
-# How it works
+This implementation uses [dgs-framework](https://github.com/Netflix/dgs-framework), Netflix's GraphQL server framework for Spring Boot.
+
+### How it works
 
 The application uses Spring Boot (Web, Mybatis).
 
-* Use the idea of Domain Driven Design to separate the business term and infrastructure term.
-* Use MyBatis to implement the [Data Mapper](https://martinfowler.com/eaaCatalog/dataMapper.html) pattern for persistence.
-* Use [CQRS](https://martinfowler.com/bliki/CQRS.html) pattern to separate the read model and write model.
+- Uses Domain Driven Design (DDD) to separate business logic from infrastructure concerns
+- Uses MyBatis to implement the [Data Mapper](https://martinfowler.com/eaaCatalog/dataMapper.html) pattern for persistence
+- Uses [CQRS](https://martinfowler.com/bliki/CQRS.html) pattern to separate read and write models
+- Uses Lombok to reduce boilerplate code
 
-And the code is organized as this:
+## Project Structure
 
-1. `api` is the web layer implemented by Spring MVC
-2. `core` is the business model including entities and services
-3. `application` is the high-level services for querying the data transfer objects
-4. `infrastructure`  contains all the implementation classes as the technique details
+```
+src/main/java/io/spring/
+├── api/                    # REST API layer (Spring MVC controllers)
+│   ├── exception/          # Custom exceptions and error handling
+│   └── security/           # JWT filter and security configuration
+├── application/            # Application services layer
+│   ├── article/            # Article command services and validation
+│   ├── data/               # Data Transfer Objects (DTOs)
+│   └── user/               # User command services and validation
+├── core/                   # Domain layer (entities and repository interfaces)
+│   ├── article/            # Article entity and repository
+│   ├── comment/            # Comment entity and repository
+│   ├── favorite/           # ArticleFavorite entity and repository
+│   ├── service/            # Domain service interfaces (JwtService, AuthorizationService)
+│   └── user/               # User entity, FollowRelation, and repository
+├── graphql/                # GraphQL layer (Netflix DGS datafetchers and mutations)
+│   └── exception/          # GraphQL-specific exceptions
+└── infrastructure/         # Infrastructure layer (implementations)
+    ├── mybatis/            # MyBatis mappers, type handlers, and read services
+    ├── repository/         # Repository implementations
+    └── service/            # Service implementations (DefaultJwtService)
+```
 
-# Security
+## Requirements
 
-Integration with Spring Security and add other filter for jwt token process.
+- Java 11 or higher
+- Gradle (wrapper included)
 
-The secret key is stored in `application.properties`.
+## Dependencies
 
-# Database
+The main dependencies used in this project:
 
-It uses a ~~H2 in-memory database~~ sqlite database (for easy local test without losing test data after every restart), can be changed easily in the `application.properties` for any other database.
+| Dependency | Purpose |
+|------------|---------|
+| Spring Boot 2.6.3 | Application framework |
+| Spring Security | Authentication and authorization |
+| MyBatis | ORM/Data Mapper |
+| Netflix DGS | GraphQL server framework |
+| JJWT | JWT token generation and validation |
+| Joda-Time | Date/time handling |
+| SQLite | Database (default) |
+| Lombok | Boilerplate code reduction |
+| Flyway | Database migrations |
 
-# Getting started
+## Security
+
+Integration with Spring Security with JWT token-based authentication.
+
+The JWT configuration is stored in `application.properties`:
+- `jwt.secret`: Secret key for signing tokens (HS512 algorithm)
+- `jwt.sessionTime`: Token expiration time in seconds (default: 86400 = 24 hours)
+
+## Database
+
+Uses SQLite database by default for easy local testing without losing data after restart. Can be changed in `application.properties` for any other database.
+
+## Getting started
 
 You'll need Java 11 installed.
 
-    ./gradlew bootRun
+```bash
+./gradlew bootRun
+```
 
-To test that it works, open a browser tab at http://localhost:8080/tags .  
-Alternatively, you can run
+To test that it works, open a browser tab at http://localhost:8080/tags or run:
 
-    curl http://localhost:8080/tags
+```bash
+curl http://localhost:8080/tags
+```
 
-# Try it out with [Docker](https://www.docker.com/)
+## Configuration
+
+The main configuration file is `src/main/resources/application.properties`:
+
+```properties
+# Database
+spring.datasource.url=jdbc:sqlite:dev.db
+spring.datasource.driver-class-name=org.sqlite.JDBC
+
+# JWT
+jwt.secret=your-secret-key
+jwt.sessionTime=86400
+
+# MyBatis
+mybatis.configuration.map-underscore-to-camel-case=true
+mybatis.mapper-locations=mapper/*.xml
+```
+
+## API Examples
+
+### User Registration
+
+```bash
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {
+      "username": "johndoe",
+      "email": "john@example.com",
+      "password": "password123"
+    }
+  }'
+```
+
+### User Login
+
+```bash
+curl -X POST http://localhost:8080/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": {
+      "email": "john@example.com",
+      "password": "password123"
+    }
+  }'
+```
+
+### Get Current User
+
+```bash
+curl http://localhost:8080/user \
+  -H "Authorization: Token <your-jwt-token>"
+```
+
+### Create Article
+
+```bash
+curl -X POST http://localhost:8080/articles \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token <your-jwt-token>" \
+  -d '{
+    "article": {
+      "title": "How to train your dragon",
+      "description": "Ever wonder how?",
+      "body": "You have to believe",
+      "tagList": ["dragons", "training"]
+    }
+  }'
+```
+
+### Get Articles
+
+```bash
+# Get all articles
+curl http://localhost:8080/articles
+
+# Filter by tag
+curl http://localhost:8080/articles?tag=dragons
+
+# Filter by author
+curl http://localhost:8080/articles?author=johndoe
+
+# Filter by favorited
+curl http://localhost:8080/articles?favorited=johndoe
+
+# Pagination
+curl http://localhost:8080/articles?limit=10&offset=0
+```
+
+### Get User Feed
+
+```bash
+curl http://localhost:8080/articles/feed \
+  -H "Authorization: Token <your-jwt-token>"
+```
+
+### Favorite Article
+
+```bash
+curl -X POST http://localhost:8080/articles/how-to-train-your-dragon/favorite \
+  -H "Authorization: Token <your-jwt-token>"
+```
+
+### Follow User
+
+```bash
+curl -X POST http://localhost:8080/profiles/johndoe/follow \
+  -H "Authorization: Token <your-jwt-token>"
+```
+
+### Add Comment
+
+```bash
+curl -X POST http://localhost:8080/articles/how-to-train-your-dragon/comments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token <your-jwt-token>" \
+  -d '{
+    "comment": {
+      "body": "Great article!"
+    }
+  }'
+```
+
+## GraphQL API
+
+The GraphQL endpoint is available at `http://localhost:8080/graphql`.
+
+Example query:
+
+```graphql
+query {
+  articles(first: 10) {
+    edges {
+      node {
+        slug
+        title
+        description
+        author {
+          username
+        }
+      }
+    }
+  }
+}
+```
+
+## Try it out with Docker
 
 You'll need Docker installed.
-	
-    ./gradlew bootBuildImage --imageName spring-boot-realworld-example-app
-    docker run -p 8081:8080 spring-boot-realworld-example-app
 
-# Try it out with a RealWorld frontend
+```bash
+./gradlew bootBuildImage --imageName spring-boot-realworld-example-app
+docker run -p 8081:8080 spring-boot-realworld-example-app
+```
+
+## Try it out with a RealWorld frontend
 
 The entry point address of the backend API is at http://localhost:8080, **not** http://localhost:8080/api as some of the frontend documentation suggests.
 
-# Run test
+## Run tests
 
-The repository contains a lot of test cases to cover both api test and repository test.
+The repository contains comprehensive test cases covering both API tests and repository tests.
 
-    ./gradlew test
+```bash
+./gradlew test
+```
 
-# Code format
+## Code format
 
-Use spotless for code format.
+Use Spotless for code formatting with Google Java Format.
 
-    ./gradlew spotlessJavaApply
+```bash
+./gradlew spotlessJavaApply
+```
 
-# Help
+## Contributing
 
 Please fork and PR to improve the project.

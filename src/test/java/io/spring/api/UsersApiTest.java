@@ -30,6 +30,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the UsersApi REST controller.
+ *
+ * <p>Tests user registration and login operations, including validation
+ * for duplicate usernames, emails, and invalid credentials.
+ */
 @WebMvcTest(UsersApi.class)
 @Import({
   WebSecurityConfig.class,

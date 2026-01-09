@@ -27,9 +27,22 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.joda.time.format.ISODateTimeFormat;
 
+/**
+ * GraphQL data fetcher for comment queries.
+ *
+ * <p>This component handles GraphQL queries related to comments:
+ * <ul>
+ *   <li>Fetching comments for an article with cursor-based pagination</li>
+ *   <li>Resolving comment payloads from mutations</li>
+ * </ul>
+ *
+ * @see CommentQueryService
+ * @see CommentMutation
+ */
 @DgsComponent
 @AllArgsConstructor
 public class CommentDatafetcher {
+  /** Service for querying comment data. */
   private CommentQueryService commentQueryService;
 
   @DgsData(parentType = COMMENTPAYLOAD.TYPE_NAME, field = COMMENTPAYLOAD.Comment)

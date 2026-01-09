@@ -15,12 +15,41 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * JWT authentication filter for processing Bearer tokens.
+ *
+ * <p>This filter intercepts incoming requests and extracts JWT tokens from the
+ * Authorization header. If a valid token is found, it authenticates the user
+ * and sets the security context.
+ *
+ * <p>Token format: "Token {jwt}" or "Bearer {jwt}"
+ *
+ * @see JwtService
+ * @see WebSecurityConfig
+ */
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public class JwtTokenFilter extends OncePerRequestFilter {
+  /** Repository for looking up users by ID. */
   @Autowired private UserRepository userRepository;
+
+  /** Service for JWT token validation and parsing. */
   @Autowired private JwtService jwtService;
+
+  /** The HTTP header name containing the JWT token. */
   private final String header = "Authorization";
 
+  /**
+   * Processes the JWT token from the request and authenticates the user.
+   *
+   * <p>This method extracts the JWT token from the Authorization header,
+   * validates it, and if valid, sets the authenticated user in the security context.
+   *
+   * @param request the HTTP request
+   * @param response the HTTP response
+   * @param filterChain the filter chain
+   * @throws ServletException if a servlet error occurs
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -47,6 +76,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  /**
+   * Extracts the token string from the Authorization header.
+   *
+   * <p>The header is expected to be in the format "Token {jwt}" or "Bearer {jwt}".
+   *
+   * @param header the Authorization header value
+   * @return an Optional containing the token string, or empty if not present
+   */
   private Optional<String> getTokenString(String header) {
     if (header == null) {
       return Optional.empty();

@@ -30,6 +30,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the ArticleFavoriteApi REST controller.
+ *
+ * <p>Tests article favorite and unfavorite operations.
+ */
 @WebMvcTest(ArticleFavoriteApi.class)
 @Import({WebSecurityConfig.class, JacksonCustomizations.class})
 public class ArticleFavoriteApiTest extends TestWithCurrentUser {

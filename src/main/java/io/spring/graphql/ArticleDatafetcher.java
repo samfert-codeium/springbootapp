@@ -32,11 +32,31 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.joda.time.format.ISODateTimeFormat;
 
+/**
+ * GraphQL data fetcher for article queries.
+ *
+ * <p>This component handles GraphQL queries related to articles, including:
+ * <ul>
+ *   <li>User feed (articles from followed users)</li>
+ *   <li>Article listing with filters</li>
+ *   <li>User's authored articles</li>
+ *   <li>User's favorited articles</li>
+ *   <li>Single article by slug</li>
+ * </ul>
+ *
+ * <p>Uses cursor-based pagination for efficient data retrieval.
+ *
+ * @see ArticleQueryService
+ * @see ArticleMutation
+ */
 @DgsComponent
 @AllArgsConstructor
 public class ArticleDatafetcher {
 
+  /** Service for querying article data. */
   private ArticleQueryService articleQueryService;
+
+  /** Repository for user operations. */
   private UserRepository userRepository;
 
   @DgsQuery(field = QUERY.Feed)

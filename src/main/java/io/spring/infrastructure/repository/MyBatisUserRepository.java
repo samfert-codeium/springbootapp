@@ -8,8 +8,18 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+/**
+ * MyBatis implementation of the UserRepository.
+ *
+ * <p>This repository provides persistence operations for users and follow
+ * relationships using MyBatis as the ORM framework.
+ *
+ * @see UserRepository
+ * @see UserMapper
+ */
 @Repository
 public class MyBatisUserRepository implements UserRepository {
+  /** MyBatis mapper for user operations. */
   private final UserMapper userMapper;
 
   @Autowired

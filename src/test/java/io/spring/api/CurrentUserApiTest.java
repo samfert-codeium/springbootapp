@@ -25,6 +25,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the CurrentUserApi REST controller.
+ *
+ * <p>Tests current user operations including getting and updating user profile,
+ * as well as authentication validation.
+ */
 @WebMvcTest(CurrentUserApi.class)
 @Import({
   WebSecurityConfig.class,

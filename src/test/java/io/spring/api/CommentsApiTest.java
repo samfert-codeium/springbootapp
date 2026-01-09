@@ -30,6 +30,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the CommentsApi REST controller.
+ *
+ * <p>Tests comment CRUD operations including creating, reading, and deleting comments,
+ * as well as authorization checks for comment deletion.
+ */
 @WebMvcTest(CommentsApi.class)
 @Import({WebSecurityConfig.class, JacksonCustomizations.class})
 public class CommentsApiTest extends TestWithCurrentUser {

@@ -34,6 +34,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Unit tests for the ArticleApi REST controller.
+ *
+ * <p>Tests article CRUD operations including reading, updating, and deleting articles,
+ * as well as authorization checks for article modifications.
+ */
 @WebMvcTest({ArticleApi.class})
 @Import({WebSecurityConfig.class, JacksonCustomizations.class})
 public class ArticleApiTest extends TestWithCurrentUser {

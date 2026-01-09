@@ -12,6 +12,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+/**
+ * Abstract base class for API tests that require an authenticated user.
+ *
+ * <p>Provides common setup for mocking user authentication, including:
+ * <ul>
+ *   <li>User repository mocks</li>
+ *   <li>JWT service mocks</li>
+ *   <li>User read service mocks</li>
+ * </ul>
+ */
 abstract class TestWithCurrentUser {
   @MockBean protected UserRepository userRepository;
 

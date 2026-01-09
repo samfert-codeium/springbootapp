@@ -6,6 +6,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit tests for the Article domain entity.
+ *
+ * <p>Tests slug generation from article titles, including handling of
+ * special characters, numbers, case conversion, and non-ASCII characters.
+ */
 public class ArticleTest {
 
   @Test
