@@ -35,7 +35,9 @@ import org.springframework.test.web.servlet.MockMvc;
   WebSecurityConfig.class,
   UserQueryService.class,
   BCryptPasswordEncoder.class,
-  JacksonCustomizations.class
+  JacksonCustomizations.class,
+  io.spring.application.user.DuplicatedUsernameValidator.class,
+  io.spring.application.user.DuplicatedEmailValidator.class
 })
 public class UsersApiTest {
   @Autowired private MockMvc mvc;

@@ -1,11 +1,11 @@
 package io.spring.application.user;
 
 import io.spring.core.user.UserRepository;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class DuplicatedUsernameValidator
+public class DuplicatedUsernameValidator
     implements ConstraintValidator<DuplicatedUsernameConstraint, String> {
 
   @Autowired private UserRepository userRepository;
